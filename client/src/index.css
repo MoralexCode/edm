@@ -9,29 +9,33 @@
    =========================================================================== */
 
 :root {
-  /* Light Mode */
-  --bg-main: #f4f4ff;
-  --bg-main-end: #ffffff;
-  --surface-container: #f2f2f6;
-  --surface-card: #dde1e8;
-  --text-primary: #1a1c1e;
-  --text-secondary: #74777f;
-  --divider: rgba(0, 0, 0, 0.05);
+  /* Light Mode — brand kit "Luz y Servicio"
+     Negro Carbón #151515 · Blanco Marfil #FFFDF7
+     Amarillo Luz #F6C445 · Naranja Cosecha #E88A1A */
+  --bg-main: #fffdf7;
+  --bg-main-end: #fff8e8;
+  --surface-container: #f6eedd;
+  --surface-card: #fbf3e4;
+  --text-primary: #151515;
+  --text-secondary: #57534e;
+  --divider: rgba(21, 21, 21, 0.08);
+  --border-subtle: #efe3cc;
 
-  --accent-primary: #d8d6ff;
-  --text-on-accent-primary: #3b36b2;
-  --accent-danger: #fbd8db;
-  --text-on-accent-danger: #ba1a1a;
+  /* Primario: Amarillo Luz con texto Negro Carbón (contraste 11:1) */
+  --accent-primary: #f6c445;
+  --text-on-accent-primary: #151515;
+  --accent-danger: #fbd8d2;
+  --text-on-accent-danger: #b3261e;
   --timeline-private-bg: #fee8e8;
   --timeline-private-text: #b42318;
   --timeline-private-border: #e5484d;
 
-  /* Toggles activos (verde/teal, no lila) */
-  --accent-success: #2bb673;
+  /* Correcto / toggles activos */
+  --accent-success: #2f8f4e;
   --on-accent-success: #ffffff;
 
-  /* Acento sólido para iconos/dials activos (derivado del primario) */
-  --accent-strong: #6c68ff;
+  /* Acento sólido para iconos, foco y radios: Naranja Cosecha */
+  --accent-strong: #e88a1a;
 
   /* Geometría */
   --radius-sm: 14px;
@@ -39,7 +43,7 @@
   --radius-lg: 32px;
   --radius-pill: 9999px;
 
-  --shadow-soft: 0 6px 24px rgba(20, 20, 43, 0.06);
+  --shadow-soft: 0 6px 24px rgba(120, 80, 10, 0.08);
 
   color-scheme: light;
 }
@@ -53,6 +57,7 @@
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.6);
   --divider: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.1);
 
   --accent-primary: #6c68ff;
   --text-on-accent-primary: #c6c4ff;
@@ -76,6 +81,12 @@
   box-sizing: border-box;
 }
 
+/* Casillas y radios nativos con el color de acento del tema */
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--accent-strong);
+}
+
 html,
 body,
 #root {
@@ -90,8 +101,8 @@ body {
   margin: 0;
   font-family: 'Inter', system-ui, sans-serif;
   color: var(--text-primary);
-  background:
-    radial-gradient(140% 120% at 0% 0%, var(--bg-main) 0%, var(--bg-main-end) 70%);
+  background-color: var(--bg-main-end);
+  background-image: radial-gradient(140% 120% at 0% 0%, var(--bg-main) 0%, var(--bg-main-end) 70%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   transition:
@@ -185,7 +196,7 @@ a {
   cursor: not-allowed;
 }
 .c-btn:focus-visible {
-  outline: 2px solid var(--accent-primary);
+  outline: 2px solid var(--accent-strong);
   outline-offset: 2px;
 }
 

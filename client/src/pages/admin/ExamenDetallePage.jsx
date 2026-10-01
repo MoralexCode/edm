@@ -36,7 +36,7 @@ const colorCalificacion = (valor) =>
   Number(valor) >= 8
     ? 'text-[var(--accent-success)]'
     : Number(valor) >= 6
-      ? 'text-amber-500'
+      ? 'text-amber-700 dark:text-amber-400'
       : 'text-red-500';
 
 const TABS = [
