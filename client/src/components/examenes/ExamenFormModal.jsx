@@ -5,6 +5,7 @@ import Modal from '../ui/Modal';
 import { Examenes } from '../../services/examenes';
 import { PUBLIC_BASE_URL } from '../../app/constants';
 import PreguntaBuilder, { emptyPregunta } from './PreguntaBuilder';
+import MediaPicker from '../media/MediaPicker';
 
 const slugify = (value = '') =>
   String(value)
@@ -22,12 +23,9 @@ const buildForm = (examen) => ({
   titulo: examen?.titulo ?? '',
   subtitulo: examen?.subtitulo ?? '',
   descripcion: examen?.descripcion ?? '',
+  imagen_url: examen?.imagen_url ?? '',
   activo: examen?.activo ?? true,
   mostrar_calificacion: examen?.mostrar_calificacion ?? true,
-  pedir_nombre: examen?.pedir_nombre ?? true,
-  nombre_requerido: examen?.nombre_requerido ?? true,
-  pedir_telefono: examen?.pedir_telefono ?? true,
-  telefono_requerido: examen?.telefono_requerido ?? false,
   preguntas: Array.isArray(examen?.preguntas)
     ? examen.preguntas.map((p) => {
         const correctas = new Set(p.correctas || []);
@@ -69,6 +67,7 @@ const ExamenFormModal = ({ examen, hasRespuestas = false, onClose, onSaved }) =>
         const out = {
           id: String(p.id || '').startsWith('tmp-') ? undefined : p.id,
           texto: p.texto.trim(),
+          media: p.media || null,
           tipo: p.tipo,
           requerida: Boolean(p.requerida),
           puntos: Number(p.puntos) || 1,
@@ -78,6 +77,7 @@ const ExamenFormModal = ({ examen, hasRespuestas = false, onClose, onSaved }) =>
               id: String(o.id || '').startsWith('tmp-') ? undefined : o.id,
               texto: o.texto.trim(),
               correcta: Boolean(o.correcta),
+              media: o.media || null,
             })),
         };
         if (p.tipo === 'multiple' && p.max_selecciones !== '' && p.max_selecciones != null) {
@@ -93,12 +93,14 @@ const ExamenFormModal = ({ examen, hasRespuestas = false, onClose, onSaved }) =>
         titulo: form.titulo.trim(),
         subtitulo: form.subtitulo.trim() || null,
         descripcion: form.descripcion.trim() || null,
+        imagen_url: form.imagen_url || null,
         activo: Boolean(form.activo),
         mostrar_calificacion: Boolean(form.mostrar_calificacion),
-        pedir_nombre: Boolean(form.pedir_nombre),
-        nombre_requerido: form.pedir_nombre ? Boolean(form.nombre_requerido) : false,
-        pedir_telefono: Boolean(form.pedir_telefono),
-        telefono_requerido: form.pedir_telefono ? Boolean(form.telefono_requerido) : false,
+        // El stepper siempre pide sólo el nombre (mín. 5 letras); el teléfono está oculto.
+        pedir_nombre: true,
+        nombre_requerido: true,
+        pedir_telefono: false,
+        telefono_requerido: false,
         preguntas,
       };
 
@@ -246,72 +248,13 @@ const ExamenFormModal = ({ examen, hasRespuestas = false, onClose, onSaved }) =>
           </label>
         </div>
 
-        <div className="space-y-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] p-3">
-          <p className="c-label">Nombre y teléfono en el formulario público</p>
-
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-            <label className="flex min-h-11 items-center gap-2 text-sm text-[var(--text-primary)]">
-              <input
-                type="checkbox"
-                className="h-5 w-5"
-                checked={Boolean(form.pedir_nombre)}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    pedir_nombre: e.target.checked,
-                    nombre_requerido: e.target.checked ? f.nombre_requerido : false,
-                  }))
-                }
-              />
-              Pedir nombre
-            </label>
-            <label
-              className={`flex min-h-11 items-center gap-2 text-sm ${
-                form.pedir_nombre ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] opacity-50'
-              }`}
-            >
-              <input
-                type="checkbox"
-                className="h-5 w-5"
-                disabled={!form.pedir_nombre}
-                checked={Boolean(form.nombre_requerido)}
-                onChange={(e) => setForm((f) => ({ ...f, nombre_requerido: e.target.checked }))}
-              />
-              Nombre obligatorio
-            </label>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-            <label className="flex min-h-11 items-center gap-2 text-sm text-[var(--text-primary)]">
-              <input
-                type="checkbox"
-                className="h-5 w-5"
-                checked={Boolean(form.pedir_telefono)}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    pedir_telefono: e.target.checked,
-                    telefono_requerido: e.target.checked ? f.telefono_requerido : false,
-                  }))
-                }
-              />
-              Pedir teléfono
-            </label>
-            <label
-              className={`flex min-h-11 items-center gap-2 text-sm ${
-                form.pedir_telefono ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] opacity-50'
-              }`}
-            >
-              <input
-                type="checkbox"
-                className="h-5 w-5"
-                disabled={!form.pedir_telefono}
-                checked={Boolean(form.telefono_requerido)}
-                onChange={(e) => setForm((f) => ({ ...f, telefono_requerido: e.target.checked }))}
-              />
-              Teléfono obligatorio
-            </label>
-          </div>
+        <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] p-3">
+          <MediaPicker
+            label="Imagen de portada (pantalla de inicio)"
+            tipos={['imagen']}
+            value={form.imagen_url ? { tipo: 'imagen', valor: form.imagen_url } : null}
+            onChange={(media) => setForm((f) => ({ ...f, imagen_url: media?.valor || '' }))}
+          />
         </div>
 
         <PreguntaBuilder

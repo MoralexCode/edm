@@ -1,9 +1,19 @@
 import mongoose from 'mongoose';
 
+// Emoji (texto) o imagen (URL pública en Cloudflare R2).
+const MediaSchema = new mongoose.Schema(
+  {
+    tipo: { type: String, enum: ['emoji', 'imagen'], required: true },
+    valor: { type: String, required: true },
+  },
+  { _id: false }
+);
+
 const OpcionSchema = new mongoose.Schema(
   {
     id: { type: String, required: true },
     texto: { type: String, required: true },
+    media: { type: MediaSchema, default: null },
   },
   { _id: false }
 );
@@ -12,6 +22,7 @@ const PreguntaSchema = new mongoose.Schema(
   {
     id: { type: String, required: true },
     texto: { type: String, required: true },
+    media: { type: MediaSchema, default: null },
     tipo: { type: String, enum: ['unica', 'multiple'], default: 'unica' },
     requerida: { type: Boolean, default: true },
     max_selecciones: { type: Number },
@@ -31,12 +42,13 @@ const ExamenSchema = new mongoose.Schema(
     titulo: { type: String, required: true, trim: true },
     subtitulo: { type: String, default: null },
     descripcion: { type: String, default: null },
+    imagen_url: { type: String, default: null },
     preguntas: { type: [PreguntaSchema], default: [] },
     activo: { type: Boolean, default: true },
     mostrar_calificacion: { type: Boolean, default: true },
     pedir_nombre: { type: Boolean, default: true },
     nombre_requerido: { type: Boolean, default: true },
-    pedir_telefono: { type: Boolean, default: true },
+    pedir_telefono: { type: Boolean, default: false },
     telefono_requerido: { type: Boolean, default: false },
   },
   {

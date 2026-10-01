@@ -9,6 +9,7 @@ import {
   updateExamen,
 } from '../controllers/examenController.js';
 import { crearRespuestaPublica, getPublicExamen } from '../controllers/publicExamenController.js';
+import { imageUpload, uploadImagen } from '../controllers/uploadController.js';
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.put('/examenes/:id', updateExamen);
 router.delete('/examenes/:id', deleteExamen);
 router.get('/examenes/:id/respuestas', listRespuestas);
 router.delete('/examenes/:id/respuestas/:respuestaId', deleteRespuesta);
+router.post('/uploads/imagen', imageUpload, uploadImagen);
 
 export default router;

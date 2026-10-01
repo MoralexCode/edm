@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, ClipboardPaste, Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, ClipboardPaste, ImagePlus, Plus, Trash2 } from 'lucide-react';
 import Modal from '../ui/Modal';
 import RawImportPanel from './RawImportPanel';
+import MediaPicker from '../media/MediaPicker';
+import MediaView from '../media/MediaView';
 
 const TIPOS = [
   { value: 'unica', label: 'Selección única' },
@@ -12,11 +14,13 @@ const emptyOpcion = () => ({
   id: `tmp-${crypto.randomUUID()}`,
   texto: '',
   correcta: false,
+  media: null,
 });
 
 export const emptyPregunta = () => ({
   id: `tmp-${crypto.randomUUID()}`,
   texto: '',
+  media: null,
   tipo: 'unica',
   requerida: true,
   puntos: 1,
@@ -34,9 +38,16 @@ const moveItem = (list, index, direction) => {
 
 const letra = (i) => String.fromCharCode(65 + i);
 
+const SUGERENCIA = {
+  emoji: '¿Qué representa este emoji?',
+  imagen: '¿Qué representa esta imagen?',
+};
+const esSugerencia = (texto) => Object.values(SUGERENCIA).includes(String(texto || '').trim());
+
 const PreguntaBuilder = ({ preguntas, onChange, hasRespuestas = false }) => {
   const [rawOpen, setRawOpen] = useState(false);
   const [pendingRemoveIndex, setPendingRemoveIndex] = useState(null);
+  const [mediaOpcion, setMediaOpcion] = useState(null); // { pIndex, oIndex }
 
   const updatePregunta = (index, patch) => {
     onChange(preguntas.map((p, i) => (i === index ? { ...p, ...patch } : p)));
@@ -46,6 +57,17 @@ const PreguntaBuilder = ({ preguntas, onChange, hasRespuestas = false }) => {
     const pregunta = preguntas[pIndex];
     const opciones = pregunta.opciones.map((o, i) => (i === oIndex ? { ...o, ...patch } : o));
     updatePregunta(pIndex, { opciones });
+  };
+
+  const setPreguntaMedia = (pIndex, media) => {
+    const pregunta = preguntas[pIndex];
+    const patch = { media };
+    // Con medio, la pregunta sugiere "¿Qué representa esta imagen/emoji?".
+    if (media && (!pregunta.texto.trim() || esSugerencia(pregunta.texto))) {
+      patch.texto = SUGERENCIA[media.tipo];
+    }
+    if (!media && esSugerencia(pregunta.texto)) patch.texto = '';
+    updatePregunta(pIndex, patch);
   };
 
   const marcarCorrecta = (pIndex, oIndex, checked) => {
@@ -171,6 +193,15 @@ const PreguntaBuilder = ({ preguntas, onChange, hasRespuestas = false }) => {
               placeholder="¿Quién es el único camino para llegar al Padre?"
             />
 
+            <div className="mb-3 rounded-[var(--radius-md)] bg-[var(--surface-container)] p-3">
+              <MediaPicker
+                key={`pm-${pregunta.id}`}
+                label="Medio de la pregunta (opcional)"
+                value={pregunta.media}
+                onChange={(media) => setPreguntaMedia(pIndex, media)}
+              />
+            </div>
+
             <div className="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
               <div className="col-span-2 sm:col-span-1">
                 <label className="c-label" htmlFor={`preg-tipo-${pIndex}`}>
@@ -257,6 +288,19 @@ const PreguntaBuilder = ({ preguntas, onChange, hasRespuestas = false }) => {
                   <span className="w-5 text-sm font-semibold text-[var(--text-secondary)]">
                     {letra(oIndex)})
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => setMediaOpcion({ pIndex, oIndex })}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-md)] border border-dashed border-[var(--border-subtle)] bg-[var(--surface-container)] text-[var(--text-secondary)]"
+                    aria-label={`Emoji o imagen de la opción ${letra(oIndex)}`}
+                    title="Emoji o imagen"
+                  >
+                    {opcion.media ? (
+                      <MediaView media={opcion.media} emojiSize="1.5rem" />
+                    ) : (
+                      <ImagePlus size={16} />
+                    )}
+                  </button>
                   <input
                     className="c-input min-w-0 flex-1"
                     value={opcion.texto}
@@ -336,6 +380,30 @@ const PreguntaBuilder = ({ preguntas, onChange, hasRespuestas = false }) => {
           </div>
         );
       })}
+
+      <Modal
+        open={mediaOpcion != null}
+        onClose={() => setMediaOpcion(null)}
+        title={
+          mediaOpcion
+            ? `Pregunta ${mediaOpcion.pIndex + 1} · Opción ${letra(mediaOpcion.oIndex)}`
+            : ''
+        }
+        footer={
+          <button type="button" className="c-btn px-4 py-2 text-sm" onClick={() => setMediaOpcion(null)}>
+            Listo
+          </button>
+        }
+      >
+        {mediaOpcion && preguntas[mediaOpcion.pIndex]?.opciones?.[mediaOpcion.oIndex] && (
+          <MediaPicker
+            key={`om-${preguntas[mediaOpcion.pIndex].opciones[mediaOpcion.oIndex].id}`}
+            label="Emoji o imagen de la opción"
+            value={preguntas[mediaOpcion.pIndex].opciones[mediaOpcion.oIndex].media}
+            onChange={(media) => updateOpcion(mediaOpcion.pIndex, mediaOpcion.oIndex, { media })}
+          />
+        )}
+      </Modal>
 
       <Modal
         open={pendingRemoveIndex != null}

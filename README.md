@@ -54,13 +54,36 @@ server {
 
 Luego `certbot --nginx -d edm.moralexcode.com` y `pm2 start src/edm-api.js --name edm-api` dentro de `server/`.
 
+## Experiencia del alumno (stepper móvil)
+
+Brand kit **Luz y Servicio** (Negro Carbón `#151515`, Blanco Marfil `#FFFDF7`,
+Amarillo Luz `#F6C445`, Naranja Cosecha `#E88A1A`).
+
+1. **Inicio** — libro, imagen de portada, sesión, número de preguntas y nombre
+   (mínimo 5 letras) → *Comenzar*.
+2. **Una pregunta por pantalla** — barra de progreso, flecha ← y contador `4/10`.
+   Selección única avanza sola; múltiple usa *Siguiente*. El botón "atrás" del
+   celular funciona igual que la flecha (`?p=4` en la URL).
+3. **Revisión** — toca una pregunta para cambiarla; luego *Enviar examen*.
+4. **Resultado estilo Duolingo** — calificación, aciertos y cada pregunta con tu
+   respuesta y la correcta.
+
+El avance se guarda en el celular (localStorage): si recarga, sigue donde se quedó.
+
+## Emoji o imagen en preguntas y opciones
+
+En el builder cada pregunta y cada opción puede llevar un **emoji** (se guarda como
+texto) o una **imagen** PNG/JPG/WebP/GIF/SVG (se sube a **Cloudflare R2**; requiere las
+variables `R2_*` en `server/.env`, ver `.env.example`). Al poner medio a una pregunta
+se sugiere el texto "¿Qué representa esta imagen/este emoji?".
+
 ## Calificación
 
 - Se califica **en el servidor**; la API pública nunca envía las respuestas correctas.
 - Pregunta acertada = lo seleccionado coincide exactamente con las correctas.
 - Calificación = puntos obtenidos / puntos posibles × 10 (un decimal).
-- Si "Mostrar calificación al alumno" está activo, al enviar ve su calificación y qué
-  preguntas acertó (sin revelar la respuesta correcta).
+- Si "Mostrar calificación al alumno" está activo, al enviar ve su calificación y la
+  retroalimentación de cada pregunta (las correctas se revelan sólo después de enviar).
 
 ## Seed de "¿Quién es Jesús?"
 

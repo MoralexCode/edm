@@ -10,6 +10,7 @@ const EXAMEN_FIELDS = [
   'titulo',
   'subtitulo',
   'descripcion',
+  'imagen_url',
   'preguntas',
   'activo',
   'mostrar_calificacion',
@@ -59,8 +60,11 @@ const buildPayloadFromBody = (body, { isCreate = false } = {}) => {
   }
   if (isCreate && updates.sesion === undefined) return { error: 'La sesión es obligatoria' };
 
-  for (const key of ['libro_titulo', 'subtitulo', 'descripcion']) {
+  for (const key of ['libro_titulo', 'subtitulo', 'descripcion', 'imagen_url']) {
     if (updates[key] !== undefined) updates[key] = normalizeOptionalText(updates[key]);
+  }
+  if (updates.imagen_url && !/^https?:\/\//i.test(updates.imagen_url)) {
+    return { error: 'imagen_url no es una URL válida' };
   }
 
   if (updates.preguntas !== undefined) {

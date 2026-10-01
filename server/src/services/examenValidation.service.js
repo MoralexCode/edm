@@ -4,6 +4,37 @@ const TIPOS = new Set(['unica', 'multiple']);
 
 const asText = (value) => (value == null ? '' : String(value).trim());
 
+const EMOJI_MAX = 16;
+
+const isHttpUrl = (value) => {
+  try {
+    const u = new URL(value);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Normaliza un medio opcional: { tipo: 'emoji'|'imagen', valor }.
+ * @returns {{ media: object|null, error?: string }}
+ */
+export const normalizeMedia = (raw, where) => {
+  if (!raw || typeof raw !== 'object') return { media: null };
+  const tipo = asText(raw.tipo);
+  const valor = asText(raw.valor);
+  if (!tipo || !valor) return { media: null };
+  if (tipo === 'emoji') {
+    if ([...valor].length > EMOJI_MAX) return { media: null, error: `Emoji demasiado largo en ${where}` };
+    return { media: { tipo, valor } };
+  }
+  if (tipo === 'imagen') {
+    if (!isHttpUrl(valor)) return { media: null, error: `URL de imagen inválida en ${where}` };
+    return { media: { tipo, valor } };
+  }
+  return { media: null, error: `Tipo de medio inválido en ${where}` };
+};
+
 const ensureId = (value) => {
   const id = asText(value);
   return id && !id.startsWith('tmp-') ? id : crypto.randomUUID();
@@ -65,7 +96,9 @@ export const normalizePreguntas = (raw) => {
         };
       }
       const id = ensureId(opt.id);
-      opciones.push({ id, texto: optTexto });
+      const om = normalizeMedia(opt.media, `la opción ${j + 1} de la pregunta ${i + 1}`);
+      if (om.error) return { preguntas: [], error: om.error };
+      opciones.push({ id, texto: optTexto, media: om.media });
       if (opt.correcta === true || correctasPrevias.has(opt.id)) correctas.push(id);
     }
 
@@ -82,9 +115,13 @@ export const normalizePreguntas = (raw) => {
       };
     }
 
+    const pm = normalizeMedia(item.media, `la pregunta ${i + 1}`);
+    if (pm.error) return { preguntas: [], error: pm.error };
+
     const pregunta = {
       id: ensureId(item.id),
       texto,
+      media: pm.media,
       tipo,
       requerida: item.requerida === undefined ? true : Boolean(item.requerida),
       puntos,

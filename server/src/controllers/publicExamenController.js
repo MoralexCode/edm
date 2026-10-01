@@ -22,6 +22,7 @@ export const getPublicExamen = async (req, res) => {
     titulo: json.titulo,
     subtitulo: json.subtitulo,
     descripcion: json.descripcion,
+    imagen_url: json.imagen_url,
     preguntas: sinClave(json.preguntas),
     activo: json.activo,
     pedir_nombre: json.pedir_nombre,
@@ -49,6 +50,9 @@ export const crearRespuestaPublica = async (req, res) => {
   if (examen.pedir_nombre && examen.nombre_requerido && !nombre) {
     return res.status(400).json({ message: 'El nombre es obligatorio' });
   }
+  if (nombre && (nombre.match(/\p{L}/gu) || []).length < 5) {
+    return res.status(400).json({ message: 'Escribe tu nombre completo (mínimo 5 letras)' });
+  }
   if (examen.pedir_telefono && examen.telefono_requerido && !telefono) {
     return res.status(400).json({ message: 'El teléfono es obligatorio' });
   }
@@ -70,6 +74,8 @@ export const crearRespuestaPublica = async (req, res) => {
       total_preguntas: resultado.total_preguntas,
       calificacion: resultado.calificacion,
       resultados: resultado.resultados,
+      // Retroalimentación al final: ya se envió, ahora sí se revelan las correctas.
+      correctas: Object.fromEntries(preguntas.map((p) => [p.id, p.correctas || []])),
     };
   }
   res.status(201).json(body);

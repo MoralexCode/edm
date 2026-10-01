@@ -4,11 +4,24 @@ const OPTION_SPLIT_RE = /((?:^|\s)\*?[A-Ha-h]\))/g;
 
 const tmpId = () => `tmp-${crypto.randomUUID()}`;
 
+// Emoji al inicio de una opción ("💼 Tengo empleo") → media emoji.
+const LEADING_EMOJI_RE = /^((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u200D|\p{Extended_Pictographic}|\p{Emoji_Modifier}|\p{Regional_Indicator})*)\s*/u;
+
+const extractEmoji = (texto) => {
+  const m = texto.match(LEADING_EMOJI_RE);
+  if (!m) return { texto, media: null };
+  return { texto: texto.slice(m[0].length).trim(), media: { tipo: 'emoji', valor: m[1] } };
+};
+
 export const RAW_PLACEHOLDER_TEXT = `Pega aquí tus preguntas (formato de los PDF de ejercicios).
 Marca la respuesta correcta con un asterisco *:
 
 1.- ¿Quién es el único camino para poder llegar al Padre?
 A) La iglesia. B) Los pastores. *C) Jesucristo.
+
+Puedes poner un emoji al inicio de cada opción:
+3.- ¿Cuál es tu situación actual?
+A) 💼 Tengo empleo *B) 🔍 Busco oportunidad C) 📈 Soy autónomo
 
 2.- Él es la escalera que une el cielo con la Tierra.
 *A) Jesucristo.
@@ -35,7 +48,8 @@ const splitOpciones = (line) => {
       texto = texto.slice(1).trim();
     }
     i += 1;
-    if (texto) opciones.push({ id: tmpId(), texto, correcta });
+    const { texto: limpio, media } = extractEmoji(texto);
+    if (limpio) opciones.push({ id: tmpId(), texto: limpio, correcta, media });
   }
   return opciones;
 };
@@ -97,6 +111,7 @@ export const parseExamenRawText = (raw) => {
       id: p.id,
       texto: p.texto,
       tipo: nCorrectas > 1 ? 'multiple' : 'unica',
+      media: null,
       requerida: true,
       puntos: 1,
       max_selecciones: '',
