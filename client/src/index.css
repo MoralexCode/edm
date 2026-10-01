@@ -49,30 +49,32 @@
 }
 
 .dark {
-  /* Dark Mode */
-  --bg-main: #0b0d14;
-  --bg-main-end: #06181a;
-  --surface-container: #232326;
-  --surface-card: #1a1c1e;
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.6);
-  --divider: rgba(255, 255, 255, 0.08);
-  --border-subtle: rgba(255, 255, 255, 0.1);
+  /* Dark Mode — "carbón cálido" (brand kit Luz y Servicio)
+     Base Negro Carbón, texto Blanco Marfil; el amarillo sólo en acciones
+     principales para que no deslumbre. */
+  --bg-main: #100f0d;
+  --bg-main-end: #151515;
+  --surface-container: #2a2723;
+  --surface-card: #1f1d1a;
+  --text-primary: #fffdf7;
+  --text-secondary: #b5aea2;
+  --divider: rgba(255, 253, 247, 0.08);
+  --border-subtle: #3a352e;
 
-  --accent-primary: #6c68ff;
-  --text-on-accent-primary: #c6c4ff;
-  --accent-danger: #593032;
-  --text-on-accent-danger: #f7787b;
-  --timeline-private-bg: rgba(247, 120, 123, 0.12);
-  --timeline-private-text: #ff9a9c;
-  --timeline-private-border: #f7787b;
+  --accent-primary: #f6c445;
+  --text-on-accent-primary: #151515;
+  --accent-danger: #4a2320;
+  --text-on-accent-danger: #f07a6a;
+  --timeline-private-bg: rgba(240, 122, 106, 0.12);
+  --timeline-private-text: #f5a093;
+  --timeline-private-border: #f07a6a;
 
-  --accent-success: #1fd18b;
-  --on-accent-success: #04231a;
+  --accent-success: #4cc27a;
+  --on-accent-success: #0d2416;
 
-  --accent-strong: #6c68ff;
+  --accent-strong: #e88a1a;
 
-  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.45);
 
   color-scheme: dark;
 }
@@ -155,16 +157,25 @@ a {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-pill);
-  background: var(--accent-primary);
-  color: var(--text-on-accent-primary);
+  background: var(--surface-container);
+  color: var(--text-primary);
   border: none;
   cursor: pointer;
   flex-shrink: 0;
   aspect-ratio: 1;
   transition: transform 150ms ease, filter 150ms ease;
 }
-.c-btn-circle:hover {
-  filter: brightness(1.05);
+.c-btn-circle:hover:not(:disabled) {
+  background: var(--accent-primary);
+  color: var(--text-on-accent-primary);
+}
+.c-btn-circle:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.c-btn-circle:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
 }
 .c-btn-circle:active {
   transform: scale(0.96);
